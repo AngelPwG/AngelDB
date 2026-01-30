@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LeafNode extends BPlusNode {
-    List<Row> data = new ArrayList<Row>();
+    List<Row> data;
     LeafNode next;
 
     public LeafNode(int m) {
