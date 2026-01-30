@@ -2,9 +2,9 @@ public class Main {
     public static void main(String[] args) {
         BPlusTree tree = new BPlusTree(3);
 
-        InternalNode root = new InternalNode(3, false);
-        LeafNode leftLeaf = new LeafNode(3, true);
-        LeafNode rightLeaf = new LeafNode(3, true);
+        InternalNode root = new InternalNode(3);
+        LeafNode leftLeaf = new LeafNode(3);
+        LeafNode rightLeaf = new LeafNode(3);
 
         leftLeaf.next = rightLeaf;
 
