@@ -1,12 +1,17 @@
+package btree;
+
+import models.Row;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class LeafNode extends BPlusNode {
-    List<Row> data;
-    LeafNode next;
+    public List<Row> data;
+    public LeafNode next;
+    public Long nextPointer;
 
-    public LeafNode(int m) {
-        this.m = m;
+    public LeafNode(int t) {
+        this.t = t;
         this.keys = new ArrayList<>();
         this.data = new ArrayList<>();
         this.next = null;

@@ -1,10 +1,14 @@
+package btree;
+
+import models.Row;
+
 public class BPlusTree {
     public BPlusNode root;
-    public int m;
+    public int t;
 
-    public BPlusTree(int m){
+    public BPlusTree(int t){
         this.root = null;
-        this.m = m;
+        this.t = t;
     }
 
     public Row search(long key) {
@@ -35,15 +39,15 @@ public class BPlusTree {
         BPlusNode r = root;
 
         if(r == null){
-            LeafNode root = new LeafNode(m);
+            LeafNode root = new LeafNode(t);
             root.keys.add(key);
             root.data.add(record);
             this.root = root;
             return true;
         }
 
-        if(r.keys.size() == 2 * m - 1){
-            InternalNode newRoot = new InternalNode(m);
+        if(r.keys.size() == 2 * t - 1){
+            InternalNode newRoot = new InternalNode(t);
             root = newRoot;
             newRoot.children.add(r);
 
@@ -58,26 +62,26 @@ public class BPlusTree {
     private void splitChild(InternalNode parent, int i, BPlusNode fullChild){
         if(fullChild.isLeaf){
             LeafNode oldChild = (LeafNode) fullChild;
-            LeafNode newChild = new LeafNode(m);
+            LeafNode newChild = new LeafNode(t);
 
             newChild.next = oldChild.next;
             oldChild.next = newChild;
 
-            newChild.keys.addAll(oldChild.keys.subList(m - 1, oldChild.keys.size()));
-            newChild.data.addAll(oldChild.data.subList(m - 1, oldChild.data.size()));
-            oldChild.keys.subList(m - 1, oldChild.keys.size()).clear();
-            oldChild.data.subList(m - 1, oldChild.data.size()).clear();
+            newChild.keys.addAll(oldChild.keys.subList(t - 1, oldChild.keys.size()));
+            newChild.data.addAll(oldChild.data.subList(t - 1, oldChild.data.size()));
+            oldChild.keys.subList(t - 1, oldChild.keys.size()).clear();
+            oldChild.data.subList(t - 1, oldChild.data.size()).clear();
 
             parent.children.add(i + 1, newChild);
             parent.keys.add(i, newChild.keys.getFirst());
         }else{
-            InternalNode newChild = new InternalNode(m);
+            InternalNode newChild = new InternalNode(t);
             InternalNode oldChild = (InternalNode) fullChild;
 
-            newChild.keys.addAll(oldChild.keys.subList(m - 1, oldChild.keys.size()));
-            oldChild.keys.subList(m - 1, oldChild.keys.size()).clear();
-            newChild.children.addAll(oldChild.children.subList(m, oldChild.children.size()));
-            oldChild.children.subList(m, oldChild.children.size()).clear();
+            newChild.keys.addAll(oldChild.keys.subList(t - 1, oldChild.keys.size()));
+            oldChild.keys.subList(t - 1, oldChild.keys.size()).clear();
+            newChild.children.addAll(oldChild.children.subList(t, oldChild.children.size()));
+            oldChild.children.subList(t, oldChild.children.size()).clear();
 
             parent.keys.add(i, newChild.keys.getFirst());
             parent.children.add(i + 1, newChild);
@@ -101,7 +105,7 @@ public class BPlusTree {
         }else{
             InternalNode internal = (InternalNode) node;
 
-            if(internal.children.get(i).keys.size() == 2 * m - 1){
+            if(internal.children.get(i).keys.size() == 2 * t - 1){
                 splitChild(internal, i, internal.children.get(i));
 
                 if(key >= internal.keys.get(i))

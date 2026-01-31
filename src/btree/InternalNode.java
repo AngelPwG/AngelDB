@@ -1,11 +1,13 @@
+package btree;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class InternalNode extends BPlusNode {
-    List<BPlusNode> children;
+    public List<BPlusNode> children;
 
-    public InternalNode(int m) {
-        this.m = m;
+    public InternalNode(int t) {
+        this.t = t;
         this.keys = new ArrayList<>();
         this.isLeaf = false;
         this.children = new ArrayList<>();

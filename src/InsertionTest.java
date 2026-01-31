@@ -1,10 +1,13 @@
+import btree.BPlusTree;
+import models.Row;
+
 public class InsertionTest {
     public static void main(String[] args) {
-        BPlusTree tree = new BPlusTree(3);
+        BPlusTree tree = new BPlusTree(40);
 
         System.out.println("Starting Insertions");
 
-        for (int i = 1; i <= 20; i++){
+        for (int i = 1; i <= 1000; i++){
             long key = i * 10;
             System.out.println("Inserting: " + key);
             tree.insert(key, new Row(key, "User " + key, (int)(Math.random() * 10) + 7));

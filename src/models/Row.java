@@ -1,3 +1,5 @@
+package models;
+
 public record Row(
         long id,
         String name,
@@ -5,6 +7,6 @@ public record Row(
 ) {
     @Override
     public String toString(){
-        return "Row{id=" + id + ", name='" + name + "', age=" + age + "}";
+        return "models.Row{id=" + id + ", name='" + name + "', age=" + age + "}";
     }
 }

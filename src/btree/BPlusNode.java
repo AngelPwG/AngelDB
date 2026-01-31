@@ -1,8 +1,9 @@
-import java.util.ArrayList;
+package btree;
+
 import java.util.List;
 
 public abstract class BPlusNode {
-    int m;
-    List<Long> keys;
+    public List<Long> keys;
+    int t;
     boolean isLeaf;
 }
