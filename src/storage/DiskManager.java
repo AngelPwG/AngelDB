@@ -1,5 +1,7 @@
 package storage;
 
+import btree.BPlusNode;
+import btree.InternalNode;
 import btree.LeafNode;
 import models.Row;
 
@@ -11,10 +13,29 @@ import java.nio.charset.StandardCharsets;
 
 public class DiskManager {
      private RandomAccessFile file;
+     long rootPageId;
+     long totalPages;
 
      public DiskManager(String fileName){
          try {
              file = new RandomAccessFile(new File(fileName), "rw");
+             if(file.length() == 0){
+                 ByteBuffer buffer = ByteBuffer.allocate(4096);
+                 buffer.putLong(1L);
+                 buffer.putLong(2L);
+                 writePage(0, buffer.array());
+                 rootPageId = 1L;
+                 totalPages = 2L;
+
+                 LeafNode emptyRoot = new LeafNode(39);
+                 byte[] rootData = serializeLeaf(emptyRoot);
+                 writePage(1, rootData);
+             }else{
+                 byte[] data = readPage(0);
+                 ByteBuffer buffer = ByteBuffer.wrap(data);
+                 rootPageId = buffer.getLong();
+                 totalPages = buffer.getLong();
+             }
          }catch (IOException e){
              e.printStackTrace();
          }
@@ -29,6 +50,7 @@ public class DiskManager {
          System.arraycopy(stringBytes, 0, finalBytes, 0, bytesToCopy);
          buffer.put(finalBytes);
      }
+
      private String readFixedString(ByteBuffer buffer, int length){
          byte[] rawBytes = new byte[length];
          buffer.get(rawBytes);
@@ -39,6 +61,48 @@ public class DiskManager {
          }
 
          return new String(rawBytes, 0, validLength, StandardCharsets.UTF_8);
+     }
+
+     public byte[] serializeInternal(InternalNode node){
+         ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+         buffer.put((byte)1);
+         buffer.putInt(node.keys.size());
+         for(int i = 0; i < 77; i++){
+             if(i < node.keys.size())
+                 buffer.putLong(node.keys.get(i));
+             else
+                 buffer.putLong(0L);
+         }
+
+         for(int i = 0; i < 78; i++){
+             if(i < node.childrenIDs.size())
+                 buffer.putLong(node.childrenIDs.get(i));
+             else
+                 buffer.putLong(0L);
+         }
+
+         return buffer.array();
+     }
+
+     public InternalNode deserializeInternal(byte[] data){
+         InternalNode node = new InternalNode(39);
+
+         ByteBuffer buffer = ByteBuffer.wrap(data);
+
+         buffer.position(1);
+         int keyCount = buffer.getInt();
+
+         for(int i = 0; i < keyCount; i++){
+             node.keys.add(buffer.getLong());
+         }
+
+         buffer.position(622);
+         for(int i = 0; i < keyCount + 1; i++){
+             node.childrenIDs.add(buffer.getLong());
+         }
+
+         return node;
      }
 
      public byte[] serializeLeaf(LeafNode leaf){
@@ -85,7 +149,7 @@ public class DiskManager {
          for(int i = 0; i < keyCount; i ++){
              leaf.keys.add(buffer.getLong());
          }
-         buffer.position(637);
+         buffer.position(636);
          for(int i = 0; i < keyCount; i ++){
              long id = buffer.getLong();
              String name = readFixedString(buffer, 32);
@@ -123,4 +187,42 @@ public class DiskManager {
          }
          return data;
      }
+
+     public BPlusNode readNode(int pageId){
+         byte[] data = readPage(pageId);
+         ByteBuffer buffer = ByteBuffer.wrap(data);
+
+         byte isLeaf = buffer.get(0);
+         if(isLeaf == 1){
+             LeafNode leaf = deserializeLeaf(data);
+             leaf.pageId = pageId;
+             return leaf;
+         }else{
+             InternalNode internal = deserializeInternal(data);
+             internal.pageId = pageId;
+             return  internal;
+         }
+     }
+
+     public long allocatePage(){
+         long oldTotalPages = totalPages;
+         totalPages++;
+
+         ByteBuffer buffer = ByteBuffer.allocate(4096);
+         buffer.putLong(rootPageId);
+         buffer.putLong(totalPages);
+         writePage(0, buffer.array());
+
+         return oldTotalPages;
+     }
+
+    public void updateRoot(long newRootId) {
+        this.rootPageId = newRootId;
+
+        ByteBuffer buffer = ByteBuffer.allocate(4096);
+        buffer.putLong(this.rootPageId);
+        buffer.putLong(this.totalPages);
+
+        writePage(0, buffer.array());
+    }
 }

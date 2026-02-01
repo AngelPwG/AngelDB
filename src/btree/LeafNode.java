@@ -7,14 +7,13 @@ import java.util.List;
 
 public class LeafNode extends BPlusNode {
     public List<Row> data;
-    public LeafNode next;
     public Long nextPointer;
 
     public LeafNode(int t) {
         this.t = t;
         this.keys = new ArrayList<>();
         this.data = new ArrayList<>();
-        this.next = null;
+        this.nextPointer = null;
         this.isLeaf = true;
     }
 }
