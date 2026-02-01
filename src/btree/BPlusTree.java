@@ -3,11 +3,8 @@ package btree;
 import models.Row;
 import storage.DiskManager;
 
-import java.io.File;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.RandomAccess;
 
 public class BPlusTree {
     public BPlusNode root;
@@ -223,8 +220,6 @@ public class BPlusTree {
         List<Row> results = new ArrayList<>();
 
         LeafNode leaf = findLeaf(root, startId);
-
-        if (leaf == null) return results;
 
         boolean stop = false;
         while (!stop) {
