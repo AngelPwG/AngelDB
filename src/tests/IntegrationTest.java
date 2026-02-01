@@ -8,7 +8,7 @@ public class IntegrationTest {
     public static void main(String[] args) {
         DiskManager diskManager = new DiskManager("angel.db");
 
-        // m = 77, t = m / 2 = 39.~
+        // m = 77, t = m / 2  - 1= 39.~
         BPlusTree tree = new BPlusTree(39, new BufferPool(5, diskManager));
 
         /*

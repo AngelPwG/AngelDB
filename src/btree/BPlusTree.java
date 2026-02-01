@@ -185,6 +185,20 @@ public class BPlusTree {
         }
     }
 
+    public boolean update(Row record){
+        LeafNode node = findLeaf(root, record.id());
+
+        for(int i = 0; i < node.keys.size(); i++){
+            if(node.keys.get(i) == record.id()){
+                node.data.set(i, record);
+                bufferPool.saveNode(node);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public List<Row> selectAll(){
         List<Row> records = new ArrayList<>();
         BPlusNode node = root;

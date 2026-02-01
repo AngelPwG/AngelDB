@@ -42,6 +42,9 @@ public class AngelShell {
             case "select":
                 handleSelect(parts);
                 break;
+            case "update":
+                handleUpdate(parts);
+                break;
             case "help":
                 printHelp();
                 break;
@@ -56,20 +59,7 @@ public class AngelShell {
     private void handleInsert(String[] parts){
         try{
             long id = Long.parseLong(parts[1]);
-            StringBuilder name = new StringBuilder();
-            for(int i = 2; i < parts.length - 1; i ++){
-                name.append(parts[i]);
-
-                if (i < parts.length - 2) {
-                    name.append(" ");
-                }
-            }
-            int age = Integer.parseInt(parts[parts.length - 1]);
-            Row record = new Row(
-                    id,
-                    name.toString(),
-                    age
-            );
+            Row record = parseRow(parts);
             if(tree.insert(id, record))
                 System.out.println("Query OK, 1 row affected");
             else
@@ -125,6 +115,37 @@ public class AngelShell {
         }catch (NumberFormatException | ArrayIndexOutOfBoundsException e){
             System.out.println("Syntax Error: select <id> || select *");
         }
+    }
+
+    private void handleUpdate(String[] parts){
+        try{
+            long id = Long.parseLong(parts[1]);
+            Row record = parseRow(parts);
+            if(tree.update(record))
+                System.out.println("Query OK, 1 row affected (Updated ID " + id + ")");
+            else
+                System.out.println("Error: There is no record with ID " + id);
+        }catch (NumberFormatException | ArrayIndexOutOfBoundsException e){
+            System.out.println("Syntax Error: update <id> <name> <age>");
+        }
+    }
+
+    private Row parseRow(String[] parts){
+        long id = Long.parseLong(parts[1]);
+        StringBuilder name = new StringBuilder();
+        for(int i = 2; i < parts.length - 1; i ++){
+            name.append(parts[i]);
+
+            if (i < parts.length - 2) {
+                name.append(" ");
+            }
+        }
+        int age = Integer.parseInt(parts[parts.length - 1]);
+        return new Row(
+                id,
+                name.toString(),
+                age
+        );
     }
 
     private void printHelp() {
