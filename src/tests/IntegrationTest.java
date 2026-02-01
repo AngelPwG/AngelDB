@@ -2,6 +2,7 @@ package tests;
 
 import btree.BPlusTree;
 import models.Row;
+import storage.BufferPool;
 import storage.DiskManager;
 
 public class IntegrationTest {
@@ -9,7 +10,7 @@ public class IntegrationTest {
         DiskManager diskManager = new DiskManager("angel.db");
 
         // m = 77, t = m / 2 = 39.~
-        BPlusTree tree = new BPlusTree(39, diskManager);
+        BPlusTree tree = new BPlusTree(39, new BufferPool(5, diskManager));
 
         /*
             System.out.println("--- STARTING INSERTION ---");

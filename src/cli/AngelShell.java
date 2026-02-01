@@ -45,12 +45,15 @@ public class AngelShell {
             case "help":
                 printHelp();
                 break;
+            case "bulk_insert":
+                bulkInsert(parts);
+                break;
             default:
                 System.out.println("Unknown command. Type 'help' for usage.");
         }
     }
 
-    public void handleInsert(String[] parts){
+    private void handleInsert(String[] parts){
         try{
             long id = Long.parseLong(parts[1]);
             StringBuilder name = new StringBuilder();
@@ -76,7 +79,7 @@ public class AngelShell {
         }
     }
 
-    public void handleSelect(String[] parts){
+    private void handleSelect(String[] parts){
         try {
             if (parts.length == 4 && parts[1].equalsIgnoreCase("range")){
                 System.out.println("+------+----------------------------------+-----+");
@@ -130,5 +133,24 @@ public class AngelShell {
         System.out.println("  select <id>");
         System.out.println("  select *");
         System.out.println("  exit");
+    }
+
+    private void bulkInsert(String[] parts){
+        // Syntax: bulk_insert <count>
+        int count = Integer.parseInt(parts[1]);
+        System.out.println("Starting bulk insert of " + count + " records...");
+
+        long start = System.currentTimeMillis();
+
+        for (int i = 1; i <= count; i++) {
+            tree.insert(i, new Row(i, "User " + i, 20 + (i % 50)));
+
+            if (i % 100 == 0) {
+                System.out.println("... inserted " + i + " records");
+            }
+        }
+
+        long end = System.currentTimeMillis();
+        System.out.println("Success! Inserted " + count + " records in " + (end - start) + "ms.");
     }
 }

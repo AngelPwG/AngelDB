@@ -1,7 +1,7 @@
 package btree;
 
 import models.Row;
-import storage.DiskManager;
+import storage.BufferPool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,13 +9,13 @@ import java.util.List;
 public class BPlusTree {
     public BPlusNode root;
     public int t;
-    private DiskManager diskManager;
+    private BufferPool bufferPool;
 
-    public BPlusTree(int t, DiskManager diskManager){
+    public BPlusTree(int t, BufferPool bufferPool){
         this.t = t;
-        this.diskManager = diskManager;
-        if(diskManager.rootPageId > 0){
-            this.root = diskManager.readNode(diskManager.rootPageId);
+        this.bufferPool = bufferPool;
+        if(bufferPool.getRootPageId() > 0){
+            this.root = bufferPool.getNode(bufferPool.getRootPageId());
         }else{
             this.root = null;
         }
@@ -42,7 +42,7 @@ public class BPlusTree {
         InternalNode internalNode = (InternalNode) node;
         long pageId = internalNode.childrenIDs.get(i);
 
-        return recursiveSearch(diskManager.readNode(pageId), key);
+        return recursiveSearch(bufferPool.getNode(pageId), key);
     }
 
     private LeafNode findLeaf(BPlusNode node, long key){
@@ -58,7 +58,7 @@ public class BPlusTree {
         InternalNode internalNode = (InternalNode) node;
         long pageId = internalNode.childrenIDs.get(i);
 
-        return findLeaf(diskManager.readNode(pageId), key);
+        return findLeaf(bufferPool.getNode(pageId), key);
     }
 
     public boolean insert(long key, Row record){
@@ -66,27 +66,27 @@ public class BPlusTree {
 
         if(r == null){
             LeafNode root = new LeafNode(t);
-            root.pageId = diskManager.allocatePage();
+            root.pageId = bufferPool.allocatePage();
 
             root.keys.add(key);
             root.data.add(record);
             this.root = root;
 
-            saveNode(this.root);
-            diskManager.updateRoot(root.pageId);
+            bufferPool.saveNode(this.root);
+            bufferPool.updateRoot(root.pageId);
             return true;
         }
 
         if(r.keys.size() == 2 * t - 1){
             InternalNode newRoot = new InternalNode(t);
-            newRoot.pageId = diskManager.allocatePage();
+            newRoot.pageId = bufferPool.allocatePage();
 
             newRoot.childrenIDs.add(r.pageId);
             splitChild(newRoot, 0, r);
 
             root = newRoot;
-            saveNode(root);
-            diskManager.updateRoot(root.pageId);
+            bufferPool.saveNode(root);
+            bufferPool.updateRoot(root.pageId);
             return insertNonFull(newRoot, key, record);
         }
 
@@ -98,7 +98,7 @@ public class BPlusTree {
             LeafNode oldChild = (LeafNode) fullChild;
             LeafNode newChild = new LeafNode(t);
 
-            newChild.pageId = diskManager.allocatePage();
+            newChild.pageId = bufferPool.allocatePage();
 
             newChild.nextPointer = oldChild.nextPointer;
             oldChild.nextPointer = newChild.pageId;
@@ -111,13 +111,13 @@ public class BPlusTree {
             parent.childrenIDs.add(i + 1, newChild.pageId);
             parent.keys.add(i, newChild.keys.getFirst());
 
-            saveNode(newChild);
-            saveNode(oldChild);
-            saveNode(parent);
+            bufferPool.saveNode(newChild);
+            bufferPool.saveNode(oldChild);
+            bufferPool.saveNode(parent);
         }else{
             InternalNode newChild = new InternalNode(t);
             InternalNode oldChild = (InternalNode) fullChild;
-            newChild.pageId = diskManager.allocatePage();
+            newChild.pageId = bufferPool.allocatePage();
 
             newChild.keys.addAll(oldChild.keys.subList(t - 1, oldChild.keys.size()));
             oldChild.keys.subList(t - 1, oldChild.keys.size()).clear();
@@ -128,9 +128,9 @@ public class BPlusTree {
             parent.childrenIDs.add(i + 1, newChild.pageId);
             newChild.keys.removeFirst();
 
-            saveNode(newChild);
-            saveNode(oldChild);
-            saveNode(parent);
+            bufferPool.saveNode(newChild);
+            bufferPool.saveNode(oldChild);
+            bufferPool.saveNode(parent);
         }
     }
 
@@ -145,18 +145,18 @@ public class BPlusTree {
         if(node.isLeaf){
             node.keys.add(i, key);
             ((LeafNode)node).data.add(i, record);
-            saveNode(node);
+            bufferPool.saveNode(node);
 
             return true;
         }else{
             InternalNode internal = (InternalNode) node;
-            BPlusNode childNode = diskManager.readNode(internal.childrenIDs.get(i));
+            BPlusNode childNode = bufferPool.getNode(internal.childrenIDs.get(i));
             if(childNode.keys.size() == 2 * t - 1) {
                 splitChild(internal, i, childNode);
 
                 if (key >= internal.keys.get(i)) {
                     i++;
-                    childNode = diskManager.readNode(internal.childrenIDs.get(i));
+                    childNode = bufferPool.getNode(internal.childrenIDs.get(i));
                 }
             }
 
@@ -176,7 +176,7 @@ public class BPlusTree {
 
         if(!node.isLeaf){
             for(long pageId : ((InternalNode)node).childrenIDs){
-                BPlusNode child = diskManager.readNode(pageId);
+                BPlusNode child = bufferPool.getNode(pageId);
                 printRecursively(child, level + 1);
             }
         }else{
@@ -185,22 +185,13 @@ public class BPlusTree {
         }
     }
 
-    private void saveNode(BPlusNode node){
-        byte[] data;
-        if (node.isLeaf)
-            data = diskManager.serializeLeaf((LeafNode) node);
-        else
-            data = diskManager.serializeInternal((InternalNode) node);
-        diskManager.writePage(node.pageId, data);
-    }
-
     public List<Row> selectAll(){
         List<Row> records = new ArrayList<>();
         BPlusNode node = root;
 
         while (!node.isLeaf) {
             long firstChildID = ((InternalNode) node).childrenIDs.getFirst();
-            node = diskManager.readNode(firstChildID);
+            node = bufferPool.getNode(firstChildID);
         }
 
         LeafNode leafNode = (LeafNode) node;
@@ -210,7 +201,7 @@ public class BPlusTree {
 
             if(leafNode.nextPointer == 0) break;
 
-            leafNode = (LeafNode) diskManager.readNode(leafNode.nextPointer);
+            leafNode = (LeafNode) bufferPool.getNode(leafNode.nextPointer);
         }
 
         return records;
@@ -237,7 +228,7 @@ public class BPlusTree {
             }
 
             if(!stop && leaf.nextPointer != 0)
-                leaf = (LeafNode) diskManager.readNode(leaf.nextPointer);
+                leaf = (LeafNode) bufferPool.getNode(leaf.nextPointer);
             else
                 break;
         }

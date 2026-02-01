@@ -6,5 +6,5 @@ public abstract class BPlusNode {
     public List<Long> keys;
     public long pageId;
     int t;
-    boolean isLeaf;
+    public boolean isLeaf;
 }
