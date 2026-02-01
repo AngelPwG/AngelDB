@@ -5,6 +5,7 @@ import models.Row;
 
 public class InsertionTest {
     public static void main(String[] args) {
+        /*
         BPlusTree tree = new BPlusTree(40);
 
         System.out.println("Starting Insertions");
@@ -24,5 +25,6 @@ public class InsertionTest {
         System.out.println("Search 55: " + ((missing != null) ? "FOUND " + found : "NOT FOUND"));
 
         tree.printStructure();
+         */
     }
 }

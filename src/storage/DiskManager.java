@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 
 public class DiskManager {
      private RandomAccessFile file;
-     long rootPageId;
+     public long rootPageId;
      long totalPages;
 
      public DiskManager(String fileName){
@@ -66,7 +66,7 @@ public class DiskManager {
      public byte[] serializeInternal(InternalNode node){
          ByteBuffer buffer = ByteBuffer.allocate(4096);
 
-         buffer.put((byte)1);
+         buffer.put((byte)0);
          buffer.putInt(node.keys.size());
          for(int i = 0; i < 77; i++){
              if(i < node.keys.size())
@@ -97,7 +97,7 @@ public class DiskManager {
              node.keys.add(buffer.getLong());
          }
 
-         buffer.position(622);
+         buffer.position(621);
          for(int i = 0; i < keyCount + 1; i++){
              node.childrenIDs.add(buffer.getLong());
          }
@@ -188,7 +188,7 @@ public class DiskManager {
          return data;
      }
 
-     public BPlusNode readNode(int pageId){
+     public BPlusNode readNode(long pageId){
          byte[] data = readPage(pageId);
          ByteBuffer buffer = ByteBuffer.wrap(data);
 
