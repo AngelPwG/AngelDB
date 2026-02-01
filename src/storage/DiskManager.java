@@ -3,10 +3,22 @@ package storage;
 import btree.LeafNode;
 import models.Row;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class DiskManager {
+     private RandomAccessFile file;
+
+     public DiskManager(String fileName){
+         try {
+             file = new RandomAccessFile(new File(fileName), "rw");
+         }catch (IOException e){
+             e.printStackTrace();
+         }
+     }
 
      private void writeFixedString(ByteBuffer buffer, String value, int maxLength){
          byte[] stringBytes = value.getBytes(StandardCharsets.UTF_8);
@@ -88,5 +100,27 @@ public class DiskManager {
 
 
          return leaf;
+     }
+
+     public void writePage(long pageId, byte[] data){
+         try{
+             long offset = pageId * 4096;
+             file.seek(offset);
+             file.write(data);
+         }catch (IOException e){
+             e.printStackTrace();
+         }
+     }
+
+     public byte[] readPage(long pageId){
+         byte[] data = new byte[4096];
+         try{
+             long offset = pageId * 4096;
+             file.seek(offset);
+             file.read(data);
+         } catch (IOException e) {
+             throw new RuntimeException(e);
+         }
+         return data;
      }
 }
