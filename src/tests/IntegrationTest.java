@@ -24,7 +24,7 @@ public class IntegrationTest {
             long end = System.currentTimeMillis();
             System.out.println("--- INSERTION COMPLETE (" + (end - start) + "ms) ---");
          */
-
+        System.out.println(tree.search(348));
         System.out.println("--- FINAL TREE STRUCTURE ---");
         tree.printStructure();
     }

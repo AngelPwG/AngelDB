@@ -5,6 +5,8 @@ import storage.DiskManager;
 
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.RandomAccess;
 
 public class BPlusTree {
@@ -23,8 +25,6 @@ public class BPlusTree {
     }
 
     public Row search(long key) {
-        if(root == null) return null;
-
         return recursiveSearch(root, key);
     }
 
@@ -46,6 +46,22 @@ public class BPlusTree {
         long pageId = internalNode.childrenIDs.get(i);
 
         return recursiveSearch(diskManager.readNode(pageId), key);
+    }
+
+    private LeafNode findLeaf(BPlusNode node, long key){
+        if(node.isLeaf)
+            return (LeafNode) node;
+
+        int i = 0;
+
+        while(i < node.keys.size() && key >= node.keys.get(i)){
+            i++;
+        }
+
+        InternalNode internalNode = (InternalNode) node;
+        long pageId = internalNode.childrenIDs.get(i);
+
+        return findLeaf(diskManager.readNode(pageId), key);
     }
 
     public boolean insert(long key, Row record){
@@ -179,5 +195,58 @@ public class BPlusTree {
         else
             data = diskManager.serializeInternal((InternalNode) node);
         diskManager.writePage(node.pageId, data);
+    }
+
+    public List<Row> selectAll(){
+        List<Row> records = new ArrayList<>();
+        BPlusNode node = root;
+
+        while (!node.isLeaf) {
+            long firstChildID = ((InternalNode) node).childrenIDs.getFirst();
+            node = diskManager.readNode(firstChildID);
+        }
+
+        LeafNode leafNode = (LeafNode) node;
+
+        while(true){
+            records.addAll(leafNode.data);
+
+            if(leafNode.nextPointer == 0) break;
+
+            leafNode = (LeafNode) diskManager.readNode(leafNode.nextPointer);
+        }
+
+        return records;
+    }
+
+    public List<Row> selectBetween(long startId, long endId){
+        List<Row> results = new ArrayList<>();
+
+        LeafNode leaf = findLeaf(root, startId);
+
+        if (leaf == null) return results;
+
+        boolean stop = false;
+        while (!stop) {
+            for (int i = 0; i < leaf.keys.size(); i++) {
+                long key = leaf.keys.get(i);
+
+                if (key > endId) {
+                    stop = true;
+                    break;
+                }
+
+                if (key >= startId) {
+                    results.add(leaf.data.get(i));
+                }
+            }
+
+            if(!stop && leaf.nextPointer != 0)
+                leaf = (LeafNode) diskManager.readNode(leaf.nextPointer);
+            else
+                break;
+        }
+
+        return results;
     }
 }

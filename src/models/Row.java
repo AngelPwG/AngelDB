@@ -7,6 +7,6 @@ public record Row(
 ) {
     @Override
     public String toString(){
-        return "models.Row{id=" + id + ", name='" + name + "', age=" + age + "}";
+        return "id=" + id + "| name='" + name + "'| age=" + age + "}";
     }
 }
