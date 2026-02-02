@@ -45,11 +45,17 @@ public class AngelShell {
             case "update":
                 handleUpdate(parts);
                 break;
+            case "delete":
+                handleDelete(parts);
+                break;
             case "help":
                 printHelp();
                 break;
             case "bulk_insert":
                 bulkInsert(parts);
+                break;
+            case "bulk_delete":
+                bulkDelete(parts);
                 break;
             default:
                 System.out.println("Unknown command. Type 'help' for usage.");
@@ -113,7 +119,7 @@ public class AngelShell {
                 System.out.println("Syntax Error: select <id> || select * || select range <start> <end>");
             }
         }catch (NumberFormatException | ArrayIndexOutOfBoundsException e){
-            System.out.println("Syntax Error: select <id> || select *");
+            System.out.println("Syntax Error: select <id> || select * || select range <start> <end>");
         }
     }
 
@@ -127,6 +133,24 @@ public class AngelShell {
                 System.out.println("Error: There is no record with ID " + id);
         }catch (NumberFormatException | ArrayIndexOutOfBoundsException e){
             System.out.println("Syntax Error: update <id> <name> <age>");
+        }
+    }
+
+    private void handleDelete(String[] parts){
+        try{
+            if(parts.length > 2){
+                System.out.println("Syntax Error: delete <id>");
+                return;
+            }
+
+            long id = Long.parseLong(parts[1]);
+            if(tree.delete(id)){
+                System.out.println("Query OK, 1 row affected (Deleted ID " + id + ")");
+            }else{
+                System.out.println("Error: There is no record with ID " + id);
+            }
+        }catch (NumberFormatException | ArrayIndexOutOfBoundsException e){
+            System.out.println("Syntax Error: delete <id>");
         }
     }
 
@@ -173,5 +197,30 @@ public class AngelShell {
 
         long end = System.currentTimeMillis();
         System.out.println("Success! Inserted " + count + " records in " + (end - start) + "ms.");
+    }
+
+    private void bulkDelete(String[] parts){
+        // Syntax: bulk_delete <start_id> <count>
+        try {
+            long startId = Long.parseLong(parts[1]);
+            int amount = Integer.parseInt(parts[2]);
+
+            System.out.println("Starting BULK DELETE of " + amount + " records starting from ID " + startId + "...");
+            long startTime = System.currentTimeMillis();
+
+            for (long i = startId; i < startId + amount; i++) {
+                boolean success = tree.delete(i);
+                if (!success) {
+                    System.out.println("Failed to delete ID: " + i + " (Maybe it doesn't exist?)");
+                }
+
+                if (i % 50 == 0) System.out.println("... deleted up to ID " + i);
+            }
+            long endTime = System.currentTimeMillis();
+            System.out.println("Bulk delete finished in " + (endTime - startTime) + "ms.");
+        } catch (Exception e) {
+            System.out.println("Syntax: bulk_delete <start_id> <amount>");
+            e.printStackTrace();
+        }
     }
 }
