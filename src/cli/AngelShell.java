@@ -177,26 +177,32 @@ public class AngelShell {
         System.out.println("  insert <id> <name> <age>");
         System.out.println("  select <id>");
         System.out.println("  select *");
+        System.out.println("  delete <id>");
+
         System.out.println("  exit");
     }
 
     private void bulkInsert(String[] parts){
         // Syntax: bulk_insert <count>
-        int count = Integer.parseInt(parts[1]);
-        System.out.println("Starting bulk insert of " + count + " records...");
+        try{
+            int count = Integer.parseInt(parts[1]);
+            System.out.println("Starting bulk insert of " + count + " records...");
 
-        long start = System.currentTimeMillis();
+            long start = System.currentTimeMillis();
 
-        for (int i = 1; i <= count; i++) {
-            tree.insert(i, new Row(i, "User " + i, 20 + (i % 50)));
+            for (int i = 1; i <= count; i++) {
+                tree.insert(i, new Row(i, "User " + i, 20 + (i % 50)));
 
-            if (i % 100 == 0) {
-                System.out.println("... inserted " + i + " records");
+                if (i % 100 == 0) {
+                    System.out.println("... inserted " + i + " records");
+                }
             }
-        }
 
-        long end = System.currentTimeMillis();
-        System.out.println("Success! Inserted " + count + " records in " + (end - start) + "ms.");
+            long end = System.currentTimeMillis();
+            System.out.println("Success! Inserted " + count + " records in " + (end - start) + "ms.");
+        } catch (Exception e) {
+            System.out.println("Syntax: bulk_insert <count>");
+        }
     }
 
     private void bulkDelete(String[] parts){
@@ -220,7 +226,6 @@ public class AngelShell {
             System.out.println("Bulk delete finished in " + (endTime - startTime) + "ms.");
         } catch (Exception e) {
             System.out.println("Syntax: bulk_delete <start_id> <amount>");
-            e.printStackTrace();
         }
     }
 }
