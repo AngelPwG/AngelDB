@@ -48,13 +48,17 @@ The system is layered to separate concerns, mimicking professional database arch
 2. **Compile the project:**
 
     ```bash
-    javac -d bin src/*.java
+    # For Linux/Mac
+    javac -d bin $(find src -name "*.java")
+    
+    # For Windows (PowerShell)
+    Get-ChildItem -Recurse -Filter *.java | ForEach-Object { javac -d bin $_.FullName }
     ```
 
 3. **Run the Shell:**
 
     ```bash
-    java -cp bin AngelShell
+    java -cp bin Main
     ```
 
 ### Supported Commands
