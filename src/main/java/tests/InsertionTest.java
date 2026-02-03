@@ -1,4 +1,4 @@
-package main.java.tests;
+package tests;
 
 public class InsertionTest {
     public static void main(String[] args) {
