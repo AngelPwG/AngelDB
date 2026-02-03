@@ -1,7 +1,6 @@
-package tests;
+package main.java.tests;
 
 import btree.LeafNode;
-import models.Row;
 import storage.DiskManager;
 
 public class WriteAndReadTest {

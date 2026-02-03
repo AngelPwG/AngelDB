@@ -1,4 +1,4 @@
-package tests;
+package main.java.tests;
 
 import btree.BPlusTree;
 import storage.BufferPool;

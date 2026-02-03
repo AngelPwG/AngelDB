@@ -1,4 +1,4 @@
-package models;
+package main.java.models;
 
 public record Row(
         long id,

@@ -1,7 +1,4 @@
-package tests;
-
-import btree.BPlusTree;
-import models.Row;
+package main.java.tests;
 
 public class InsertionTest {
     public static void main(String[] args) {

@@ -1,8 +1,4 @@
-package tests;
-
-import btree.LeafNode;
-import models.Row;
-import storage.DiskManager;
+package main.java.tests;
 
 public class SerializingTest {
 
