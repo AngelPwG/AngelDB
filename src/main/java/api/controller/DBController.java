@@ -2,7 +2,6 @@ package api.controller;
 
 import api.dto.InsertRequest;
 import api.service.DBService;
-import btree.BPlusTree;
 import models.Row;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -19,7 +19,7 @@ public class DBController {
     private final DBService service;
 
     @Autowired
-    public DBController(DBService service) { // <--- Inject Service
+    public DBController(DBService service) {
         this.service = service;
     }
 
@@ -55,9 +55,27 @@ public class DBController {
             Row result = service.selectRecord(id);
 
             response.put("status", "success");
-            response.put("id", result.id());
-            response.put("name", result.name());
-            response.put("age", result.age());
+            response.put("data", result);
+
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e){
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/selectall")
+    public ResponseEntity<Map<String, Object>> selectAll(){
+        Map<String, Object> response = new HashMap<>();
+        try{
+            List<Row> result = service.selectAll();
+
+            response.put("status", "success");
+            response.put("data", result);
 
             return ResponseEntity.ok(response);
         } catch (RuntimeException e){

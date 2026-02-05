@@ -5,6 +5,8 @@ import models.Row;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class DBService {
     private final BPlusTree engine;
@@ -15,8 +17,8 @@ public class DBService {
     }
 
     public void insertRecord(long id, String name, int age){
-        if(age < 0 || age > 120)
-            throw new IllegalArgumentException("Age cannot be negative or above 120 years");
+        if(age < 0 || age > 110)
+            throw new IllegalArgumentException("Age cannot be negative or above 110 years");
         if(name == null || name.isEmpty())
             throw new IllegalArgumentException("Name cannot be empty");
         Row record = new Row(id, name, age);
@@ -29,6 +31,16 @@ public class DBService {
 
         if (result == null) {
             throw new RuntimeException("Record with ID " + id + " not found.");
+        }
+
+        return result;
+    }
+
+    public List<Row> selectAll(){
+        List<Row> result = engine.selectAll();
+
+        if(result.isEmpty()) {
+            throw new RuntimeException("There are no records.");
         }
 
         return result;
