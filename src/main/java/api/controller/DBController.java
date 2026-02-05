@@ -87,4 +87,49 @@ public class DBController {
             return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PutMapping("/update")
+    public ResponseEntity<Map<String, Object>> updateRecord(@RequestBody InsertRequest request){
+        Map<String, Object> response = new HashMap<>();
+        try{
+            service.update(request.id(), request.name(), request.age());
+
+            response.put("status", "success");
+            response.put("message", "Record updated");
+            response.put("id", request.id());
+
+            return ResponseEntity.ok(response);
+        } catch (IllegalStateException e){
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        } catch (IllegalArgumentException e){
+            response.put("error", e.getMessage());
+
+            return ResponseEntity.badRequest().body(response);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Map<String, Object>> deleteRecord(@PathVariable long id){
+        Map<String, Object> response = new HashMap<>();
+        try{
+            service.delete(id);
+
+            response.put("status", "success");
+            response.put("message", "Record deleted");
+
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e){
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+        }
+    }
 }

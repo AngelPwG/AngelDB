@@ -19,8 +19,10 @@ public class DBService {
     public void insertRecord(long id, String name, int age){
         if(age < 0 || age > 110)
             throw new IllegalArgumentException("Age cannot be negative or above 110 years");
+
         if(name == null || name.isEmpty())
             throw new IllegalArgumentException("Name cannot be empty");
+
         Row record = new Row(id, name, age);
         if(!engine.insert(id, record))
             throw new IllegalStateException("Record with ID " + id + " already exists.");
@@ -44,5 +46,23 @@ public class DBService {
         }
 
         return result;
+    }
+
+    public void update(long id, String name, int age){
+        if(age < 0 || age > 110)
+            throw new IllegalArgumentException("Age cannot be negative or above 110 years");
+
+        if(name == null || name.isEmpty())
+            throw new IllegalArgumentException("Name cannot be empty");
+
+        Row record = new Row(id, name, age);
+
+        if(!engine.update(record))
+            throw new RuntimeException("Record with ID " + id + " not found.");
+    }
+
+    public void delete(long id){
+        if(!engine.delete(id))
+            throw new RuntimeException("Record with ID " + id + " not found.");
     }
 }

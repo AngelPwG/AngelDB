@@ -9,7 +9,7 @@ import storage.DiskManager;
 @Configuration
 public class AppConfig {
     @Bean
-    public BPlusTree bPlusTree(){
+    public BPlusTree BPlusTree(){
         return new BPlusTree(39, new BufferPool(10, new DiskManager("angel.db")));
     }
 }
