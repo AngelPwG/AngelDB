@@ -31,9 +31,8 @@ public class DBService {
     public Row selectRecord(long id) {
         Row result = engine.search(id);
 
-        if (result == null) {
+        if (result == null)
             throw new RuntimeException("Record with ID " + id + " not found.");
-        }
 
         return result;
     }
@@ -41,9 +40,20 @@ public class DBService {
     public List<Row> selectAll(){
         List<Row> result = engine.selectAll();
 
-        if(result.isEmpty()) {
+        if(result.isEmpty())
             throw new RuntimeException("There are no records.");
-        }
+
+        return result;
+    }
+
+    public List<Row> selectRange(long start, long end){
+        if(start > end)
+            throw new IllegalArgumentException("Start ID cannot be greater than End ID.");
+
+        List<Row> result = engine.selectBetween(start, end);
+
+        if(result.isEmpty())
+            throw new RuntimeException("There are no records between ID " + start + " and " + end + ".");
 
         return result;
     }

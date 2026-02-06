@@ -68,13 +68,14 @@ public class DBController {
         }
     }
 
-    @GetMapping("/selectall")
+    @GetMapping("/selectAll")
     public ResponseEntity<Map<String, Object>> selectAll(){
         Map<String, Object> response = new HashMap<>();
         try{
             List<Row> result = service.selectAll();
 
             response.put("status", "success");
+            response.put("total-records", result.size());
             response.put("data", result);
 
             return ResponseEntity.ok(response);
@@ -121,6 +122,27 @@ public class DBController {
 
             response.put("status", "success");
             response.put("message", "Record deleted");
+
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e){
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/selectRange")
+    public ResponseEntity<Map<String, Object>> selectRange(@RequestParam long start, @RequestParam long end){
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<Row> result = service.selectRange(start, end);
+
+            response.put("status", "success");
+            response.put("total-records", result.size());
+            response.put("data", result);
 
             return ResponseEntity.ok(response);
         } catch (RuntimeException e){
