@@ -19,11 +19,12 @@ public class BufferPool {
         this.maxCapacity = maxCapacity;
     }
 
-    public BPlusNode getNode(long pageId){
+    public synchronized BPlusNode getNode(long pageId){
         if(nodes.containsKey(pageId)) return nodes.get(pageId);
 
         if(nodes.size() >= maxCapacity){
-            nodes.remove(pageOrder.remove());
+            Long oldId = pageOrder.poll();
+            nodes.remove(oldId);
         }
         BPlusNode node = diskManager.readNode(pageId);
 
@@ -33,7 +34,7 @@ public class BufferPool {
         return node;
     }
 
-    public void saveNode(BPlusNode node){
+    public synchronized void saveNode(BPlusNode node){
         if (!nodes.containsKey(node.pageId)) {
             if (nodes.size() >= maxCapacity) {
                 Long oldId = pageOrder.poll();

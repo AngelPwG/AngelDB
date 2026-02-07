@@ -1,8 +1,5 @@
 package tests;
 
-import btree.BPlusTree;
-import models.Row;
-
 public class InsertionTest {
     public static void main(String[] args) {
         /*
