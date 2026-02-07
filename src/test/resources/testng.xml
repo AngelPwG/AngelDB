@@ -1,0 +1,12 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="AngelDB Test Suite" parallel="false">
+    <listeners>
+        <listener class-name="api.listeners.TestListener"/>
+    </listeners>
+
+    <test name="Service Layer Tests">
+        <classes>
+            <class name="api.service.DBServiceTest"/>
+        </classes>
+    </test>
+</suite>

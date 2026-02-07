@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 public class DBService {
-    final BPlusTree engine;
+    private final BPlusTree engine;
 
     @Autowired
     public DBService(BPlusTree engine){
