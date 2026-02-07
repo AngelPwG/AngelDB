@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 public class DBService {
-    private final BPlusTree engine;
+    final BPlusTree engine;
 
     @Autowired
     public DBService(BPlusTree engine){
@@ -18,10 +18,10 @@ public class DBService {
 
     public void insertRecord(long id, String name, int age){
         if(age < 0 || age > 110)
-            throw new IllegalArgumentException("Age cannot be negative or above 110 years");
+            throw new IllegalArgumentException("Age cannot be negative or above 110 years.");
 
         if(name == null || name.isEmpty())
-            throw new IllegalArgumentException("Name cannot be empty");
+            throw new IllegalArgumentException("Name cannot be empty.");
 
         Row record = new Row(id, name, age);
         if(!engine.insert(id, record))
