@@ -28,3 +28,8 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+# Ignore the runtime data directory
+data/
+
+*.db

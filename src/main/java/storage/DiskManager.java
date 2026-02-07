@@ -18,7 +18,11 @@ public class DiskManager {
 
     public DiskManager(String fileName){
      try {
-         file = new RandomAccessFile(new File(fileName), "rw");
+         File dataDir = new File("data");
+         if (!dataDir.exists()) {
+             dataDir.mkdirs();
+         }
+         file = new RandomAccessFile(new File("data/" + fileName), "rw");
          if(file.length() == 0){
              ByteBuffer buffer = ByteBuffer.allocate(4096);
              buffer.putLong(1L);

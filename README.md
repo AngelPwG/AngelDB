@@ -54,7 +54,8 @@ The system is layered to separate concerns, mimicking professional database arch
 ### Prerequisites
 
 * Java Development Kit (JDK) 21 or higher.
-* Maven (for the Server mode).
+* Docker & Docker Compose (to run the server mode easily).
+* Maven (if you want to run the server mode by yourself).
 
 ### Clone the repository
 
@@ -62,16 +63,33 @@ The system is layered to separate concerns, mimicking professional database arch
     git clone https://github.com/AngelPwG/AngelDB.git
     cd AngelDB
     ```
+### Option 1: 🐳 Running the REST Server with Docker (Recommended)
 
-### Option 1: Running the REST Server
+The easiest way to run AngelDB Server is using Docker Compose. This ensures you have the correct environment and persistence without installing Java manually.
 
-1. **Start the application:**
+1. **Start the Server:**
 
     ```bash
-    ./mvnw spring-boot:run
+   docker-compose up --build
+   ```
+    
+    *The server will start on port 8080 and data will be persisted in the `./data` folder.*
+
+2. **Stop the Server:** Press `Ctrl + C` or run:
+    
+    ```bash
+   docker-compose down
+   ```
+
+### Option 2: Running the REST Server
+
+1. **Start the Server:**
+
+    ```bash
+    mvn spring-boot:run
     ```
 
-    *The server will start on port 8080*
+    *The server will start on port 8080.*
 
 2. **Test with CURL:**
 
@@ -81,16 +99,16 @@ The system is layered to separate concerns, mimicking professional database arch
      -d '{"id": 1, "name": "Bruce Wayne", "age": 35}'
     ```
 
-### Option 2: Running the CLI Shell
+### Option 3: Running the CLI Shell
 
 1. **Compile the source:**
 
     ```bash
     # For Linux/Mac
-    javac -d bin src/main/java/**/*.java
+    javac -d bin $(find src/main/java -name "*.java" -not -path "*/api/*")
 
     # For Windows (PowerShell)
-    javac -d bin (Get-ChildItem -Recurse src\main\java\*.java).FullName
+    $files = Get-ChildItem -Recurse src\main\java\*.java | Where-Object { $_.FullName -notmatch "api" }
     ```
 
 2. **Run the Shell:**

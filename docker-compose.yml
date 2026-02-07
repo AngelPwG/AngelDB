@@ -1,0 +1,16 @@
+services:
+  angeldb:
+
+    build: .
+
+    container_name: angeldb_container
+
+    user: "1000:1000"
+
+    ports:
+      - "8080:8080"
+
+    volumes:
+      - .:/run_data
+
+    restart: unless-stopped
